@@ -1,16 +1,14 @@
 RD = unsafeWindow.RedditDelete = {};
-RD.DELAY_SAVE   = 2  1000;
-RD.DELAY_DELETE = 3  1000;
-RD.DELAY_SAVE   = 150;
-RD.DELAY_DELETE = 175;
-RD.chars      = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz.-,+!@#$%^&();[]~';
+RD.DELAY_SAVE   = 2 * 1000;
+RD.DELAY_DELETE = 3 * 1000;
+RD.chars      = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz><.-,+!@#$%^&*();:[]~';
 RD.started    = false;
 
 function __getRNGString(maxLength) {
   var rnum, repl_str = '';
 
-  for (var x = 0; x  maxLength; x++){
-    rnum = Math.floor(Math.random()  RD.chars.length);
+  for (var x = 0; x < maxLength; x++){
+    rnum = Math.floor(Math.random() * RD.chars.length);
     repl_str += RD.chars.charAt(rnum, 1);
   }
 
@@ -23,26 +21,26 @@ function _setupEnv() {
   RD.numDel       = 0;
   RD.contentCtnr  = document.querySelector('div.content');
   RD.infoBar      = document.createElement('span');
-  RD.userName     = document.querySelector('span.user  anot(.login-required)').innerHTML;
+  RD.userName     = document.querySelector('span.user > a:not(.login-required)').innerHTML;
   RD.infoBar.setAttribute('class', 'nextprev');
   RD.started      = true;
 }
 
 function _setupUI() {
-  Build DELETE-ALL Link
+  //Build DELETE-ALL Link
   var delAllLink        = document.createElement('a');
   delAllLink.innerHTML  = 'SECURE DELETE ALL COMMENTS';
   delAllLink.onclick    = _promptDeleteAll;
-  delAllLink.style.cssText = color rgb(200, 0, 0); text-shadow -1px 0px 6px rgba(0,0,0, 0.7);;
+  delAllLink.style.cssText = "color: rgb(200, 0, 0); text-shadow: -1px 0px 6px rgba(0,0,0, 0.7);";
 
-  Add to infoBar!
+  //Add to infoBar!
   RD.infoBar.appendChild(delAllLink);
   RD.contentCtnr.insertBefore(RD.infoBar, RD.contentCtnr.firstChild);
 }
 
 function _promptDeleteAll() {
-  var doDelete = confirm(Are you sure you want to delete all comments on the screennn
-    + ProTip If you want to delete ALL, use RES and use 'Never Ending Reddit' feature to show ALL comments.);
+  var doDelete = confirm("Are you sure you want to delete all comments on the screen?\n\n"
+    + "ProTip: If you want to delete ALL, use RES and use 'Never Ending Reddit' feature to show ALL comments.");
 
   if (!doDelete) return;
 
@@ -54,19 +52,19 @@ function _deleteAll() {
   var modalMsg  = RD.modalMsg  = document.createElement('div');
   var cancelBtn  = document.createElement('button');
   modalCntr.style.cssText = ''
-   + 'position fixed; top 0; left 0; right 0; bottom 0;'
-   + 'height 100%; width 100%; background rgba(0,0,0,0.8);'
+   + 'position: fixed; top: 0; left: 0; right: 0; bottom: 0;'
+   + 'height: 100%; width: 100%; background: rgba(0,0,0,0.8);'
 
   modalMsg.style.cssText = ''
-   + 'position absolute; font-size 32px; transform translateX(-50%); top 50%; left 50%;'
+   + 'position: absolute; font-size: 32px; transform: translateX(-50%); top: 50%; left: 50%;'
 
   cancelBtn.style.cssText = ''
-   + 'position absolute; font-size 22px;'
-   + 'transform translateX(-50%); top 63%; left 50%;'
+   + 'position: absolute; font-size: 22px;'
+   + 'transform: translateX(-50%); top: 63%; left: 50%;'
 
-  cancelBtn.innerHTML = Cancel;
+  cancelBtn.innerHTML = "Cancel";
   cancelBtn.onclick = function() {
-    RD.modalMsg.innerHTML = Cancelling...
+    RD.modalMsg.innerHTML = "Cancelling..."
     RD.numDel = RD.comments.length;
   }
 
@@ -87,11 +85,11 @@ function __getVisibleComments() {
   var entry       = null;
   var entryAuthor = '';
 
-  for (var idx = 0; idx  entries.length; idx++) {
+  for (var idx = 0; idx < entries.length; idx++) {
     entry = entries[idx];
     entryAuthor = entry.querySelector('.author');
 
-    if (!entryAuthor  entryAuthor.innerHTML !== RD.userName) continue;
+    if (!entryAuthor || entryAuthor.innerHTML !== RD.userName) continue;
 
     foundComments.push(entry);
   };
@@ -104,7 +102,7 @@ function __deleteCommentIndex(idx) {
 
   __overwriteComment(comment, function(comment) {
     __deleteComment(comment, function() {
-      var complete = RD.numDel = RD.comments.length;
+      var complete = RD.numDel >= RD.comments.length;
       if (false === complete) {
         RD.numDel++;
         __deleteCommentIndex(RD.numDel);
@@ -123,16 +121,16 @@ function __overwriteComment(comment, callback) {
 
   if (!editLink) { if (callback) callback(comment); return; }
 
-  Enable editing...
+  //Enable editing...
   editLink.click();
   editText = comment.querySelector('textarea');
   saveBtn = comment.querySelector('.usertext-buttons .save');
 
-  Replace Text with RNG string
+  //Replace Text with RNG string
   newText         = __getRNGString(editText.value.length);
   editText.value  = newText;
 
-  Do the save...
+  //Do the save...
   saveBtn.click();
   setTimeout(function() { if (callback) callback(comment); }, RD.DELAY_SAVE);
 }
@@ -143,30 +141,21 @@ function __deleteComment(comment, callback) {
   var deleteLink = comment.querySelector('form.del-button .togglebutton')
   var yesLink;
 
-  Enable deleting...
+  //Enable deleting...
   deleteLink.click();
   yesLink = comment.querySelector('.option.error.active a.yes');
 
   if (!yesLink) { if (callback) callback(); return; }
 
-  Delay clicking YES so the user can see it
+  //Delay clicking YES so the user can see it
   setTimeout(function() {
-    Do the delete...
+    //Do the delete...
     yesLink.click();
     setTimeout(function() { if (callback) callback(); }, RD.DELAY_DELETE);
-  }, 15);
-  auto refresh the page because endless scroll doesnt work
-  setTimeout(location.reload(true), 2500);
-  auto click the button again!
-
-   setTimeout(_promptDeleteAll(), 100000);
-
+  }, 250);
 }
-
 
 (function() {
   _setupEnv();
   _setupUI();
 })();
-
-location.reload(true);
